@@ -45,8 +45,8 @@ function parsePostedDate(postedDate) {
 // ✅ Scrape Vinted Listings
 async function scrapeVintedWithPuppeteer(searchQuery, webhookUrl) {
     const browser = await puppeteer.launch({
-        headless: "new",
-        executablePath: await puppeteer.executablePath(), // ✅ Ensures Puppeteer uses its own Chrome
+        headless: true,
+        executablePath: "/usr/bin/chromium-browser", // ✅ Uses system-installed Chrome
         args: [
             "--no-sandbox",
             "--disable-setuid-sandbox",
