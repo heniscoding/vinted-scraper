@@ -45,15 +45,15 @@ function parsePostedDate(postedDate) {
 // ✅ Scrape Vinted Listings
 async function scrapeVintedWithPuppeteer(searchQuery, webhookUrl) {
     const browser = await puppeteer.launch({
-        headless: "new", // Ensures Puppeteer runs correctly on Render
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || await puppeteer.executablePath(), // Uses installed Chrome
+        headless: "new",
+        executablePath: await puppeteer.executablePath(), // ✅ Ensures Puppeteer uses its own Chrome
         args: [
-            "--no-sandbox", 
-            "--disable-setuid-sandbox", 
-            "--disable-gpu", 
+            "--no-sandbox",
+            "--disable-setuid-sandbox",
+            "--disable-gpu",
             "--disable-dev-shm-usage",
-            "--disable-background-networking", // Prevents unnecessary requests
-            "--disable-extensions", 
+            "--disable-background-networking",
+            "--disable-extensions",
             "--disable-sync",
             "--disable-translate"
         ]
@@ -62,7 +62,7 @@ async function scrapeVintedWithPuppeteer(searchQuery, webhookUrl) {
     const page = await browser.newPage();
     await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36");
 
-    // ✅ Block Images, Fonts & Stylesheets for Faster Loading
+    // ✅ Block images & fonts for speed
     await page.setRequestInterception(true);
     page.on("request", (req) => {
         if (["image", "stylesheet", "font", "media"].includes(req.resourceType())) {
@@ -77,8 +77,6 @@ async function scrapeVintedWithPuppeteer(searchQuery, webhookUrl) {
 
     try {
         await page.goto(url, { waitUntil: "domcontentloaded", timeout: 20000 });
-
-        // ✅ Ensure items load properly
         await page.waitForSelector(".feed-grid__item", { timeout: 10000 });
 
         let items = await page.evaluate(() => {
