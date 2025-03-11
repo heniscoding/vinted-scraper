@@ -11,9 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "puppeteer": "^24.4.0",
     "axios": "^1.8.1",
     "cheerio": "^1.0.0",
-    "node-cron": "^3.0.3",
-    "puppeteer": "^24.4.0"
+    "node-cron": "^3.0.3"
   }
 }
