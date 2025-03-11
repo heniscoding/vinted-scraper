@@ -44,14 +44,28 @@ function parsePostedDate(postedDate) {
 
 // ✅ Scrape Vinted Listings
 async function scrapeVintedWithPuppeteer(searchQuery, webhookUrl) {
-    const browser = await puppeteer.launch({ headless: true, args: ["--no-sandbox"] });
-    const page = await browser.newPage();
-    await page.setUserAgent("Mozilla/5.0");
+    const browser = await puppeteer.launch({
+        headless: "new", // Ensures Puppeteer runs correctly on Render
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || await puppeteer.executablePath(), // Uses installed Chrome
+        args: [
+            "--no-sandbox", 
+            "--disable-setuid-sandbox", 
+            "--disable-gpu", 
+            "--disable-dev-shm-usage",
+            "--disable-background-networking", // Prevents unnecessary requests
+            "--disable-extensions", 
+            "--disable-sync",
+            "--disable-translate"
+        ]
+    });
 
-    // ✅ Block Images & CSS for Faster Loading
+    const page = await browser.newPage();
+    await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36");
+
+    // ✅ Block Images, Fonts & Stylesheets for Faster Loading
     await page.setRequestInterception(true);
     page.on("request", (req) => {
-        if (["stylesheet", "font"].includes(req.resourceType())) {
+        if (["image", "stylesheet", "font", "media"].includes(req.resourceType())) {
             req.abort();
         } else {
             req.continue();
@@ -61,19 +75,26 @@ async function scrapeVintedWithPuppeteer(searchQuery, webhookUrl) {
     const url = `https://www.vinted.co.uk/catalog?search_text=${encodeURIComponent(searchQuery)}&order=newest_first&page=1`;
     console.log(`🔍 Fetching: ${searchQuery} -> ${url}`);
 
-    await page.goto(url, { waitUntil: "domcontentloaded" });
-    await page.waitForSelector(".feed-grid__item", { timeout: 8000 });
+    try {
+        await page.goto(url, { waitUntil: "domcontentloaded", timeout: 20000 });
 
-    let items = await page.evaluate(() => {
-        return Array.from(document.querySelectorAll(".feed-grid__item")).map(item => ({
-            link: item.querySelector("[data-testid*='overlay-link']")?.href || "#",
-            imageUrl: item.querySelector("img.web_ui__Image__content")?.src || "https://via.placeholder.com/150"
-        }));
-    });
+        // ✅ Ensure items load properly
+        await page.waitForSelector(".feed-grid__item", { timeout: 10000 });
 
-    console.log(`✅ Found ${items.length} items for "${searchQuery}".`);
-    await processListingsConcurrently(browser, items, webhookUrl);
-    await browser.close();
+        let items = await page.evaluate(() => {
+            return Array.from(document.querySelectorAll(".feed-grid__item")).map(item => ({
+                link: item.querySelector("[data-testid*='overlay-link']")?.href || "#",
+                imageUrl: item.querySelector("img.web_ui__Image__content")?.src || "https://via.placeholder.com/150"
+            }));
+        });
+
+        console.log(`✅ Found ${items.length} items for "${searchQuery}".`);
+        await processListingsConcurrently(browser, items, webhookUrl);
+    } catch (error) {
+        console.error(`❌ Error scraping Vinted for "${searchQuery}":`, error);
+    } finally {
+        await browser.close();
+    }
 }
 
 // ✅ Process Listings & Avoid Duplicates
