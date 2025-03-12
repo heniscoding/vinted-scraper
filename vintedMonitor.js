@@ -41,7 +41,7 @@ function normalizeUrl(url) {
 async function scrapeVintedWithPuppeteer(searchQuery, webhookUrl) {
     const browser = await puppeteer.launch({
         executablePath: "/usr/bin/google-chrome",
-        headless: true,
+        headless: "new", // Use "new" mode for stability
         args: ["--no-sandbox", "--disable-gpu"]
     });
     const page = await browser.newPage();
