@@ -1,19 +1,19 @@
 {
   "name": "vinted-monitor",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A Vinted monitor bot that scrapes new listings and sends alerts to Discord",
+  "main": "vintedMonitor.js",
   "scripts": {
-    "install": "npx puppeteer browsers install chrome",
     "start": "node vintedMonitor.js",
+    "install": "npx puppeteer install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["vinted", "scraper", "discord", "monitor"],
+  "author": "Your Name",
+  "license": "MIT",
   "dependencies": {
-    "puppeteer-core": "^22.0.0",
     "axios": "^1.8.1",
+    "puppeteer": "^22.0.0",
     "fs-extra": "^11.1.1"
   }
 }

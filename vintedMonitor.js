@@ -1,9 +1,6 @@
-const puppeteer = require("puppeteer-extra");
-const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+const puppeteer = require("puppeteer");
 const axios = require("axios");
 const fs = require("fs");
-
-puppeteer.use(StealthPlugin());
 
 // ✅ File to store seen listings (prevents duplicates across restarts)
 const seenListingsFile = "seen_listings.json";
@@ -39,13 +36,9 @@ function normalizeUrl(url) {
 
 // ✅ Scrape Vinted Listings
 async function scrapeVintedWithPuppeteer(searchQuery, webhookUrl) {
-    const browser = await puppeteer.launch({
-        executablePath: "/usr/bin/google-chrome",
-        headless: "new", // Use "new" mode for stability
-        args: ["--no-sandbox", "--disable-gpu"]
-    });
+    const browser = await puppeteer.launch({ headless: true, args: ["--no-sandbox"] });
     const page = await browser.newPage();
-    await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.5735.110 Safari/537.36");
+    await page.setUserAgent("Mozilla/5.0");
 
     // ✅ Block Images & CSS for Faster Loading
     await page.setRequestInterception(true);
