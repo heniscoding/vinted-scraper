@@ -39,7 +39,11 @@ function normalizeUrl(url) {
 
 // ✅ Scrape Vinted Listings
 async function scrapeVintedWithPuppeteer(searchQuery, webhookUrl) {
-    const browser = await puppeteer.launch({ headless: true, args: ["--no-sandbox"] });
+    const browser = await puppeteer.launch({
+        executablePath: "/usr/bin/google-chrome",
+        headless: true,
+        args: ["--no-sandbox", "--disable-gpu"]
+    });
     const page = await browser.newPage();
     await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.5735.110 Safari/537.36");
 

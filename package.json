@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "puppeteer-core": "^22.0.0",
     "axios": "^1.8.1",
     "cheerio": "^1.0.0",
     "node-cron": "^3.0.3",
